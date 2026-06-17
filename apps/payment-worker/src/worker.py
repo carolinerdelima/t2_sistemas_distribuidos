@@ -37,7 +37,11 @@ async def _process(body: dict) -> None:
         raise RuntimeError("payment declined (simulate_failure=True)")
 
 
-async def _handle(msg: AbstractIncomingMessage, payment_approved_exchange: aio_pika.abc.AbstractExchange) -> None:
+async def _handle(
+    msg: AbstractIncomingMessage,
+    payment_approved_exchange: aio_pika.abc.AbstractExchange,
+    ticket_sales_exchange: aio_pika.abc.AbstractExchange,
+) -> None:
     async with msg.process(ignore_processed=True):
         body = json.loads(msg.body)
         order_id = body["order_id"]
@@ -52,7 +56,6 @@ async def _handle(msg: AbstractIncomingMessage, payment_approved_exchange: aio_p
             with orders_processing_seconds.labels(worker_type=WORKER_TYPE).time():
                 await _process(body)
 
-            # Sucesso: publica para stock-worker
             next_msg = Message(
                 body=msg.body,
                 content_type="application/json",
@@ -76,11 +79,7 @@ async def _handle(msg: AbstractIncomingMessage, payment_approved_exchange: aio_p
                     delivery_mode=DeliveryMode.PERSISTENT,
                     message_id=msg.message_id,
                 )
-                # Republica na mesma exchange para retry
-                payment_queue_exchange = await msg.channel.declare_exchange(
-                    "ticket-sales", ExchangeType.DIRECT, durable=True
-                )
-                await payment_queue_exchange.publish(retry_msg, routing_key="payment")
+                await ticket_sales_exchange.publish(retry_msg, routing_key="payment")
                 orders_processed_total.labels(status="retry", worker_type=WORKER_TYPE).inc()
                 await msg.ack()
             else:
@@ -100,6 +99,9 @@ async def run_worker() -> None:
                 channel = await conn.channel()
                 await channel.set_qos(prefetch_count=10)
 
+                ticket_sales_exchange = await channel.declare_exchange(
+                    "ticket-sales", ExchangeType.DIRECT, durable=True
+                )
                 payment_approved_exchange = await channel.declare_exchange(
                     "payment-approved", ExchangeType.DIRECT, durable=True
                 )
@@ -110,7 +112,7 @@ async def run_worker() -> None:
                         "x-dead-letter-routing-key": "dead-letter",
                     },
                 )
-                await queue.consume(lambda m: _handle(m, payment_approved_exchange))
+                await queue.consume(lambda m: _handle(m, payment_approved_exchange, ticket_sales_exchange))
                 logger.info("payment worker consuming", extra={"worker": HOSTNAME})
                 await asyncio.Future()
         except asyncio.CancelledError:
