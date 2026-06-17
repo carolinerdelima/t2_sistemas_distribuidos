@@ -89,34 +89,68 @@ make up      # Build + start (~90s na 1ª vez)
 
 ## URLs
 
-| Serviço | URL | Login |
-|---|---|---|
-| Frontend (React) | http://localhost:3000 | — |
-| Producer API | http://localhost:8000/docs | — |
-| RabbitMQ UI | http://localhost:15672 | admin / admin123 |
-| Grafana | http://localhost:3001 | admin / admin123 |
-| Prometheus | http://localhost:9090 | — |
+| Serviço | URL |
+|---|---|
+| Frontend (React) | http://localhost:3000 |
+| Producer API | http://localhost:8000/docs |
+| RabbitMQ UI | http://localhost:15672 |
+| Grafana | http://localhost:3001 |
+| Prometheus | http://localhost:9090 |
+
+> Credenciais definidas no `.env` gerado pelo `make setup`.
 
 ---
 
-## Experimentos
+## Demo
+
+### 1. Compra normal — pipeline completo
+**Conceito:** Perfect Links, pipeline payment → stock → notification
+
+1. Abrir http://localhost:3000
+2. Escolher um evento, preencher nome e comprar
+3. Acompanhar o status em tempo real: `pending → payment_approved → stock_reserved → confirmed`
+
+### 2. Crash-stop — tolerância a falhas
+**Conceito:** crash-stop failure model, mensagens `unacked` voltam à fila
 
 ```bash
-make send-100          # Baseline: 100 pedidos
-make send-1000         # Carga: observar filas crescerem
-make send-failures     # 30% com falha → DLQ
-make kill-payment      # Crash-stop: 1 worker morre
-make scale-workers N=5 # Escalabilidade horizontal
-make inspect-dlq       # Ver mensagens mortas
-make slow-mode         # Workers lentos → fila cresce
-make fast-mode         # Workers rápidos → fila drena
-make restart-rabbit    # Crash-recovery do broker
+make send-1000     # enche a fila
+make kill-payment  # mata um worker abruptamente
+```
+Observar no RabbitMQ UI: consumer count cai, mensagens permanecem em `ready` e continuam sendo processadas pelos workers restantes.
+
+### 3. Dead Letter Queue — retry e falha definitiva
+**Conceito:** retry com `x-retry-count`, DLX, Best Effort Broadcast
+
+```bash
+make send-failures   # pedidos com 30% de falha simulada
+# aguardar ~30s (3 retries por mensagem)
+make inspect-dlq     # mensagens acumuladas na dead-letter-queue
 ```
 
-Sequência completa para apresentação:
+### 4. Escalabilidade e quebra de FIFO
+**Conceito:** FIFO garantido com 1 worker, ordem global quebrada com N workers
+
+```bash
+make scale-workers N=5
+make send-100
+make db-query   # processed_at fora de ordem de created_at
+```
+
+### 5. Crash-recovery — persistência de mensagens
+**Conceito:** `delivery_mode=PERSISTENT`, filas durable, reconexão automática
+
+```bash
+make send-1000
+make restart-rabbit   # RabbitMQ reinicia — mensagens sobrevivem
+```
+
+### Sequência completa
 ```bash
 ./scripts/run-experiments.sh
 ```
+
+> Guia detalhado com todos os passos: [`docs/demo.md`](docs/demo.md)
 
 ---
 
