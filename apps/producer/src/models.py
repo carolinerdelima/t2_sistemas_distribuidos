@@ -24,7 +24,7 @@ class OrderResponse(BaseModel):
     payment_method: str
     simulate_failure: bool
     status: str
-    ticket_code: Optional[str]
+    ticket_code: Optional[uuid.UUID]
     retry_count: int
     processed_by: Optional[str]
     created_at: datetime
