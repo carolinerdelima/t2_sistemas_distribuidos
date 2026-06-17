@@ -1,0 +1,115 @@
+{
+  "title": "Ticket Sales — Sistemas Distribuídos",
+  "uid": "ticket-sales-lab",
+  "schemaVersion": 38,
+  "refresh": "5s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "type": "row", "title": "Throughput",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Pedidos por status (taxa/min)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops", "custom": { "lineWidth": 2 } } },
+      "targets": [
+        { "expr": "rate(orders_published_total[1m])", "legendFormat": "Publicados", "refId": "A" },
+        { "expr": "rate(orders_processed_total{status=\"confirmed\"}[1m])", "legendFormat": "Confirmados", "refId": "B" },
+        { "expr": "rate(orders_processed_total{status=\"payment_failed\"}[1m])", "legendFormat": "Falha pagamento", "refId": "C" },
+        { "expr": "rate(orders_processed_total{status=\"out_of_stock\"}[1m])", "legendFormat": "Sem estoque", "refId": "D" },
+        { "expr": "rate(orders_processed_total{status=\"dead_letter\"}[1m])", "legendFormat": "Dead Letter", "refId": "E" }
+      ]
+    },
+    {
+      "id": 3, "type": "timeseries", "title": "Tamanho das filas",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 } },
+      "targets": [
+        { "expr": "rabbitmq_queue_messages_ready{queue=\"payment-queue\"}", "legendFormat": "payment-queue", "refId": "A" },
+        { "expr": "rabbitmq_queue_messages_ready{queue=\"stock-queue\"}", "legendFormat": "stock-queue", "refId": "B" },
+        { "expr": "rabbitmq_queue_messages_ready{queue=\"notification-queue\"}", "legendFormat": "notification-queue", "refId": "C" },
+        { "expr": "rabbitmq_queue_messages{queue=\"dead-letter-queue\"}", "legendFormat": "dead-letter-queue", "refId": "D" }
+      ]
+    },
+    {
+      "id": 4, "type": "row", "title": "Latência e Workers",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 }
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Latência de processamento p95",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, rate(orders_processing_seconds_bucket{worker_type=\"payment\"}[2m]))", "legendFormat": "payment p95", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, rate(orders_processing_seconds_bucket{worker_type=\"stock\"}[2m]))", "legendFormat": "stock p95", "refId": "B" },
+        { "expr": "histogram_quantile(0.95, rate(orders_processing_seconds_bucket{worker_type=\"notification\"}[2m]))", "legendFormat": "notification p95", "refId": "C" }
+      ]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Consumers ativos por fila",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 } },
+      "targets": [
+        { "expr": "rabbitmq_queue_consumers{queue=\"payment-queue\"}", "legendFormat": "payment-workers", "refId": "A" },
+        { "expr": "rabbitmq_queue_consumers{queue=\"stock-queue\"}", "legendFormat": "stock-workers", "refId": "B" },
+        { "expr": "rabbitmq_queue_consumers{queue=\"notification-queue\"}", "legendFormat": "notification-workers", "refId": "C" }
+      ]
+    },
+    {
+      "id": 7, "type": "row", "title": "Totais",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 }
+    },
+    {
+      "id": 10, "type": "stat", "title": "Total publicados",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "orders_published_total", "refId": "A" }]
+    },
+    {
+      "id": 11, "type": "stat", "title": "Confirmados",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "orders_processed_total{status=\"confirmed\"}", "refId": "A" }]
+    },
+    {
+      "id": 12, "type": "stat", "title": "Falhas pagamento",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "payment_failures_total", "refId": "A" }]
+    },
+    {
+      "id": 13, "type": "stat", "title": "Sem estoque",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "yellow" } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "stock_conflicts_total", "refId": "A" }]
+    },
+    {
+      "id": 14, "type": "stat", "title": "Dead Letter",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}] } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "dead_letter_total", "refId": "A" }]
+    },
+    {
+      "id": 15, "type": "stat", "title": "Ingressos vendidos",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 19 },
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } } },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background" },
+      "targets": [{ "expr": "sum(tickets_sold_total)", "refId": "A" }]
+    }
+  ]
+}

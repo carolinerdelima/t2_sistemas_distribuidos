@@ -1,0 +1,63 @@
+{
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "kStPesnBpbrTa5c/kB3uXzSx+pjwlK593WLS6JTxpc/8vftQ",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "vhosts": [{ "name": "/" }],
+  "exchanges": [
+    { "name": "ticket-sales",       "vhost": "/", "type": "direct", "durable": true, "auto_delete": false, "arguments": {} },
+    { "name": "payment-approved",   "vhost": "/", "type": "direct", "durable": true, "auto_delete": false, "arguments": {} },
+    { "name": "stock-confirmed",    "vhost": "/", "type": "direct", "durable": true, "auto_delete": false, "arguments": {} },
+    { "name": "dead-letter-exchange","vhost": "/", "type": "direct", "durable": true, "auto_delete": false, "arguments": {} }
+  ],
+  "queues": [
+    {
+      "name": "payment-queue",
+      "vhost": "/", "durable": true, "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "dead-letter-exchange",
+        "x-dead-letter-routing-key": "dead-letter"
+      }
+    },
+    {
+      "name": "stock-queue",
+      "vhost": "/", "durable": true, "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "dead-letter-exchange",
+        "x-dead-letter-routing-key": "dead-letter"
+      }
+    },
+    {
+      "name": "notification-queue",
+      "vhost": "/", "durable": true, "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "dead-letter-exchange",
+        "x-dead-letter-routing-key": "dead-letter"
+      }
+    },
+    {
+      "name": "dead-letter-queue",
+      "vhost": "/", "durable": true, "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    { "source": "ticket-sales",        "vhost": "/", "destination": "payment-queue",      "destination_type": "queue", "routing_key": "payment",      "arguments": {} },
+    { "source": "payment-approved",    "vhost": "/", "destination": "stock-queue",        "destination_type": "queue", "routing_key": "stock",        "arguments": {} },
+    { "source": "stock-confirmed",     "vhost": "/", "destination": "notification-queue", "destination_type": "queue", "routing_key": "notification", "arguments": {} },
+    { "source": "dead-letter-exchange","vhost": "/", "destination": "dead-letter-queue",  "destination_type": "queue", "routing_key": "dead-letter",  "arguments": {} }
+  ]
+}
