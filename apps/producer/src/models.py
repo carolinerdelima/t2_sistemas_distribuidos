@@ -15,8 +15,8 @@ class OrderRequest(BaseModel):
 
 
 class OrderResponse(BaseModel):
-    id: str
-    message_id: str
+    id: uuid.UUID
+    message_id: uuid.UUID
     event_id: str
     buyer_name: str
     buyer_email: str
