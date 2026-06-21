@@ -1,6 +1,8 @@
 # TicketLab — Sistema Distribuído de Venda de Ingressos
 
-**Disciplina:** Sistemas Distribuídos  
+**Disciplina:** Sistemas Distribuídos — PUCRS  
+**Professor:** Fernando Dotti  
+**Grupo:** Caroline da Rocha de Lima, Giovani da Silva Cancherini, Arthur Real Sanchotene Ferreira, Osmar Sadi Nether Filho, Leonardo Vargas Schilling  
 **Tema:** Mensageria assíncrona com RabbitMQ aplicada a venda de ingressos
 
 ---
@@ -78,7 +80,6 @@ Browser → POST /orders → Producer cria Order(status=pending) → publica em 
 ## Início Rápido
 
 ```bash
-cd ticket-sales-distributed
 make setup   # Cria .env a partir de .env.example
 make up      # Build + start (~90s na 1ª vez)
 ```
@@ -181,17 +182,21 @@ Com persistência + ACK manual, qualquer mensagem que chegou ao broker **será e
 ## Estrutura do Projeto
 
 ```
-ticket-sales-distributed/
+.
 ├── apps/
-│   ├── frontend/         React 18 + Vite + Tailwind CSS
-│   ├── producer/         FastAPI — recebe pedidos e publica no RabbitMQ
-│   ├── payment-worker/   Valida pagamento, retry com x-retry-count
-│   ├── stock-worker/     Reserva ingressos com SELECT FOR UPDATE
-│   └── notification-worker/  Gera ticket_code, simula email
+│   ├── frontend/              React 18 + Vite + Tailwind CSS
+│   ├── producer/              FastAPI — recebe pedidos e publica no RabbitMQ
+│   ├── payment-worker/        Valida pagamento, retry com x-retry-count
+│   ├── stock-worker/          Reserva ingressos com SELECT FOR UPDATE
+│   └── notification-worker/   Gera ticket_code, simula email
 ├── config/
-│   ├── rabbitmq/         rabbitmq.conf + definitions.json (auto-setup)
-│   ├── prometheus/       prometheus.yml
-│   └── grafana/          dashboard pré-configurado
+│   ├── rabbitmq/              rabbitmq.conf + definitions.json (auto-setup)
+│   ├── prometheus/            prometheus.yml
+│   └── grafana/               dashboard pré-configurado
+├── docs/
+│   ├── slides/                apresentação PPTX/PDF + roteiro + checklist visual
+│   ├── demo.md                guia completo de demo
+│   └── conceitos-sd.md        mapeamento dos conceitos da disciplina
 ├── scripts/
 │   ├── setup.sh
 │   ├── run-experiments.sh
@@ -200,6 +205,25 @@ ticket-sales-distributed/
 ├── docker-compose.yml
 ├── Makefile
 └── README.md
+```
+
+---
+
+## Materiais da Apresentação
+
+| Arquivo | Descrição |
+|---|---|
+| [`docs/slides/RabbitMQ_Apresentacao.pptx`](docs/slides/RabbitMQ_Apresentacao.pptx) | 25 slides editáveis (dark theme, python-pptx) |
+| [`docs/slides/RabbitMQ_Apresentacao.pdf`](docs/slides/RabbitMQ_Apresentacao.pdf) | Versão PDF |
+| [`docs/slides/roteiro.md`](docs/slides/roteiro.md) | Script por apresentador (~4 min cada) |
+| [`docs/slides/instrucoes_visuais.md`](docs/slides/instrucoes_visuais.md) | Checklist de imagens/screenshots a coletar |
+| [`docs/slides/gerar_slides.py`](docs/slides/gerar_slides.py) | Gerador Python — editar e rodar para regenerar o PPTX |
+
+Para regenerar o PPTX após edições no script:
+
+```bash
+cd docs/slides
+python gerar_slides.py
 ```
 
 ---
