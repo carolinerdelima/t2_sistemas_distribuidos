@@ -114,8 +114,8 @@ T(sl,"RabbitMQ",1.0,2.1,11.8,1.25,sz=72,bold=True,color=OR,align=PP_ALIGN.CENTER
 T(sl,"Mensageria em Sistemas Distribuídos",1.0,3.3,11.8,0.7,sz=26,color=WH,align=PP_ALIGN.CENTER)
 T(sl,"Confiabilidade · Ordenação · Tolerância a Falhas",1.0,4.0,11.8,0.5,sz=17,color=GR,align=PP_ALIGN.CENTER,italic=True)
 R(sl,1.5,4.52,10.33,0.04,fill=OR)
-T(sl,"Caroline da Rocha de Lima  ·  Giovani da Silva Cancherini  ·  Arthur Real Sanchotene Ferreira",1.0,4.65,11.8,0.45,sz=13,color=LG,align=PP_ALIGN.CENTER)
-T(sl,"Osmar Sadi Nether Filho  ·  Leonardo Vargas Schilling",1.0,5.08,11.8,0.45,sz=13,color=LG,align=PP_ALIGN.CENTER)
+T(sl,"Arthur Real Sanchotene Ferreira  ·  Caroline da Rocha de Lima  ·  Giovani da Silva Cancherini",1.0,4.65,11.8,0.45,sz=13,color=LG,align=PP_ALIGN.CENTER)
+T(sl,"Leonardo Vargas Schilling  ·  Osmar Sadi Nether Filho",1.0,5.08,11.8,0.45,sz=13,color=LG,align=PP_ALIGN.CENTER)
 T(sl,"Sistemas Distribuídos — 2026",1.0,5.58,11.8,0.4,sz=12.5,color=GR,align=PP_ALIGN.CENTER,italic=True)
 
 # ════════════════════════════════════════════════════════════════════════════

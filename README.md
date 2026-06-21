@@ -2,7 +2,7 @@
 
 **Disciplina:** Sistemas Distribuídos — PUCRS  
 **Professor:** Fernando Dotti  
-**Grupo:** Caroline da Rocha de Lima, Giovani da Silva Cancherini, Arthur Real Sanchotene Ferreira, Osmar Sadi Nether Filho, Leonardo Vargas Schilling  
+**Grupo:** Arthur Real Sanchotene Ferreira, Caroline da Rocha de Lima, Giovani da Silva Cancherini, Leonardo Vargas Schilling, Osmar Sadi Nether Filho  
 **Tema:** Mensageria assíncrona com RabbitMQ aplicada a venda de ingressos
 
 ---
