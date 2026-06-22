@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Buy from './pages/Buy'
 import Orders from './pages/Orders'
 import Academic from './pages/Academic'
+import { ConceptProvider } from './context/ConceptContext'
 
 function Nav() {
   const link = ({ isActive }) =>
@@ -32,17 +33,19 @@ function Nav() {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <Nav />
-        <main className="max-w-6xl mx-auto px-6 py-8">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/buy/:eventId" element={<Buy />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/academic" element={<Academic />} />
-          </Routes>
-        </main>
-      </div>
+      <ConceptProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Nav />
+          <main className="max-w-6xl mx-auto px-6 py-8">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/buy/:eventId" element={<Buy />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/academic" element={<Academic />} />
+            </Routes>
+          </main>
+        </div>
+      </ConceptProvider>
     </BrowserRouter>
   )
 }

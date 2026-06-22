@@ -1,8 +1,17 @@
-import { useState } from 'react'
-import { createOrder } from '../services/api'
+import { useState, useRef, useEffect } from 'react'
+import { createOrder, getOrder } from '../services/api'
 import OrderStatusBadge from './OrderStatusBadge'
 import { usePolling } from '../hooks/usePolling'
-import { getOrder } from '../services/api'
+import { useConcept } from '../context/ConceptContext'
+
+const STATUS_CONCEPT = {
+  processing:       'at-least-once',
+  payment_approved: 'perfect-links',
+  stock_reserved:   'race-condition',
+  confirmed:        'idempotency',
+  payment_failed:   'dlq',
+  out_of_stock:     'dlq',
+}
 
 export default function OrderForm({ event }) {
   const [form, setForm] = useState({
@@ -15,11 +24,21 @@ export default function OrderForm({ event }) {
   const [submitting, setSubmitting] = useState(false)
   const [orderId, setOrderId] = useState(null)
   const [error, setError] = useState(null)
+  const showConcept = useConcept()
+  const prevStatus = useRef(null)
 
   const { data: orderStatus } = usePolling(
     () => (orderId ? getOrder(orderId) : Promise.resolve(null)),
     2000,
   )
+
+  useEffect(() => {
+    const status = orderStatus?.status
+    if (!status || status === prevStatus.current) return
+    prevStatus.current = status
+    const conceptId = STATUS_CONCEPT[status]
+    if (conceptId) showConcept(conceptId)
+  }, [orderStatus?.status, showConcept])
 
   const terminal = ['confirmed', 'payment_failed', 'out_of_stock', 'dead_letter']
   const isDone = orderStatus && terminal.includes(orderStatus.status)
@@ -31,6 +50,7 @@ export default function OrderForm({ event }) {
     try {
       const res = await createOrder({ ...form, event_id: event.id })
       setOrderId(res.id)
+      showConcept('beb')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -44,7 +64,9 @@ export default function OrderForm({ event }) {
         <h3 className="font-semibold text-gray-900">Acompanhamento do pedido</h3>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">Status:</span>
-          {orderStatus ? <OrderStatusBadge status={orderStatus.status} /> : <span className="text-sm text-gray-400">carregando...</span>}
+          {orderStatus
+            ? <OrderStatusBadge status={orderStatus.status} />
+            : <span className="text-sm text-gray-400">carregando...</span>}
         </div>
         {orderStatus?.ticket_code && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4">
