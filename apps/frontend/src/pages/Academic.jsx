@@ -12,9 +12,9 @@ export default function Academic() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Painel Acadêmico</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Experimentos ao vivo</h1>
         <p className="text-gray-500 mt-1 text-sm">
-          Experimentos ao vivo para demonstração de conceitos de Sistemas Distribuídos
+          Dispare lotes de pedidos para demonstrar backpressure, retry e tolerância a falhas em tempo real
         </p>
       </div>
 

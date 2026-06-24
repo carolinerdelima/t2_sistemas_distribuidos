@@ -29,8 +29,8 @@ export default function EventCard({ event }) {
       </div>
       <div className="p-5 flex flex-col flex-1">
         <h3 className="font-semibold text-gray-900 text-lg leading-tight mb-1">{event.name}</h3>
-        <p className="text-sm text-gray-500 mb-1">📍 {event.venue}</p>
-        <p className="text-sm text-gray-500 mb-3">🗓 {formatDate(event.event_date)}</p>
+        <p className="text-sm text-gray-500 mb-1">{event.venue}</p>
+        <p className="text-sm text-gray-500 mb-3">{formatDate(event.event_date)}</p>
         <div className="flex items-center justify-between mt-auto">
           <div>
             <p className="text-xl font-bold text-brand-500">{formatPrice(event.price)}</p>

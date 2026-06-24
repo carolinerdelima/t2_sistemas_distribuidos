@@ -101,7 +101,7 @@ export function ConceptProvider({ children }) {
     if (!data) return
     const id = ++nextId
     setToasts(prev => [...prev, { id, ...data }])
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 8000)
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 10000)
   }, [])
 
   return (

@@ -28,3 +28,12 @@ export const sendBatch = (count, failureRate = 0) =>
   request(`/batch?count=${count}&failure_rate=${failureRate}`, { method: 'POST' })
 
 export const getStats = () => request('/stats')
+
+export const debugKillWorker = (worker) =>
+  request(`/debug/kill-worker?worker=${worker}`, { method: 'POST' })
+
+export const debugScaleWorker = (worker, replicas) =>
+  request(`/debug/scale?worker=${worker}&replicas=${replicas}`, { method: 'POST' })
+
+export const debugRestartRabbit = () =>
+  request('/debug/restart-rabbit', { method: 'POST' })

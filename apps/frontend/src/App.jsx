@@ -1,8 +1,10 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
+import GuidedFlow from './pages/GuidedFlow'
 import Home from './pages/Home'
 import Buy from './pages/Buy'
 import Orders from './pages/Orders'
 import Academic from './pages/Academic'
+import Plataforma from './pages/Plataforma'
 import { ConceptProvider } from './context/ConceptContext'
 
 function Nav() {
@@ -17,16 +19,44 @@ function Nav() {
     <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-gray-900">🎟 TicketLab</span>
-          <span className="text-xs text-gray-400 hidden sm:block">Sistemas Distribuídos</span>
+          <span className="text-lg font-bold text-gray-900">TicketLab</span>
+          <span className="text-xs text-gray-400 hidden sm:block">· Sistemas Distribuídos</span>
         </div>
         <nav className="flex items-center gap-1">
-          <NavLink to="/" end className={link}>Eventos</NavLink>
+          <NavLink to="/" end className={link}>Guiado</NavLink>
+          <NavLink to="/demo" className={link}>Demo Livre</NavLink>
           <NavLink to="/orders" className={link}>Pedidos</NavLink>
-          <NavLink to="/academic" className={link}>Painel SD</NavLink>
+          <NavLink to="/plataforma" className={link}>Plataforma SD</NavLink>
+          <NavLink to="/academic" className={link}>Experimentos</NavLink>
         </nav>
       </div>
     </header>
+  )
+}
+
+function AppContent() {
+  const { pathname } = useLocation()
+  const isGuided = pathname === '/'
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Nav />
+      {isGuided ? (
+        <Routes>
+          <Route path="/" element={<GuidedFlow />} />
+        </Routes>
+      ) : (
+        <main className="max-w-6xl mx-auto px-6 py-8">
+          <Routes>
+            <Route path="/demo" element={<Home />} />
+            <Route path="/buy/:eventId" element={<Buy />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/plataforma" element={<Plataforma />} />
+            <Route path="/academic" element={<Academic />} />
+          </Routes>
+        </main>
+      )}
+    </div>
   )
 }
 
@@ -34,17 +64,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ConceptProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Nav />
-          <main className="max-w-6xl mx-auto px-6 py-8">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/buy/:eventId" element={<Buy />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/academic" element={<Academic />} />
-            </Routes>
-          </main>
-        </div>
+        <AppContent />
       </ConceptProvider>
     </BrowserRouter>
   )

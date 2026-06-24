@@ -14,7 +14,7 @@ RESET     := \033[0m
 
 help:
 	@echo ""
-	@echo "$(BOLD)TicketLab — Sistemas Distribuídos$(RESET)"
+	@echo "$(BOLD)TicketLab - Sistemas Distribuídos$(RESET)"
 	@echo ""
 	@echo "$(CYAN)Ambiente$(RESET)"
 	@echo "  make setup              Configura .env inicial"

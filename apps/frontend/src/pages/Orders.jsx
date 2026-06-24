@@ -19,7 +19,7 @@ const PIPELINE = [
   { status: 'processing',       label: 'processing',       concept: 'Unacked', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   { status: 'payment_approved', label: 'payment_approved', concept: 'PL/ACK', color: 'bg-brand-50 text-brand-500 border-brand-100' },
   { status: 'stock_reserved',   label: 'stock_reserved',   concept: 'MUTEX',  color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  { status: 'confirmed',        label: 'confirmed ✓',      concept: 'IDEM',   color: 'bg-green-100 text-green-700 border-green-200' },
+  { status: 'confirmed',        label: 'confirmed',      concept: 'IDEM',   color: 'bg-green-100 text-green-700 border-green-200' },
 ]
 
 function PipelineBanner({ orders }) {
@@ -30,7 +30,7 @@ function PipelineBanner({ orders }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-        Pipeline de pedidos — caminho normal
+        Pipeline de pedidos: caminho normal
       </p>
       <div className="flex items-center gap-1 flex-wrap">
         {PIPELINE.map((stage, i) => (

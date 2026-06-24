@@ -32,7 +32,7 @@ export default function Buy() {
       </button>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
-        <p className="text-gray-500 text-sm mt-1">📍 {event.venue}</p>
+        <p className="text-gray-500 text-sm mt-1">{event.venue}</p>
         <p className="text-xs text-gray-400 mt-1">
           {event.available_tickets.toLocaleString('pt-BR')} ingressos disponíveis ·{' '}
           R$ {Number(event.price).toFixed(2).replace('.', ',')} cada
@@ -40,7 +40,7 @@ export default function Buy() {
       </div>
       <OrderForm event={event} />
       <p className="text-xs text-gray-300 mt-4 text-center">
-        O pedido é processado de forma assíncrona — acompanhe o status em tempo real acima.
+        O pedido é processado de forma assíncrona, acompanhe o status em tempo real acima.
       </p>
     </div>
   )

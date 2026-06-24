@@ -14,6 +14,7 @@ from .database import init_db
 from .publisher import Publisher
 from .routers.orders import router as orders_router, set_publisher
 from .routers.events import router as events_router
+from .routers.debug import router as debug_router
 
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(jsonlogger.JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
@@ -45,6 +46,7 @@ app.add_middleware(
 
 app.include_router(orders_router)
 app.include_router(events_router)
+app.include_router(debug_router)
 
 
 @app.get("/health", tags=["infra"])

@@ -20,7 +20,7 @@ const STATUS_CONFIG = {
     concept: 'Exclusão Mútua: SELECT FOR UPDATE reservou ingresso sem race condition',
   },
   confirmed: {
-    label: 'Confirmado ✓',
+    label: 'Confirmado',
     cls: 'bg-green-100 text-green-800',
     concept: 'Idempotência: notification-worker gerou ticket_code (reprocessável sem duplicar)',
   },

@@ -27,7 +27,7 @@ const NODES = [
   { id: 'dlq',      x: 720, y: 150, label: 'dead-letter-queue',sub: 'DLQ',                type: 'dlq',      concept: 'dlq'            },
   { id: 'q-notif',  x: 150, y: 270, label: 'notif-queue',      sub: 'durable',            type: 'queue',    concept: 'idempotency'    },
   { id: 'w-notif',  x: 290, y: 270, label: 'notif-worker',     sub: 'gera ticket_code',   type: 'worker',   concept: 'idempotency'    },
-  { id: 'db',       x: 430, y: 270, label: 'PostgreSQL',        sub: 'confirmed ✓',        type: 'database', concept: 'crash-recovery' },
+  { id: 'db',       x: 430, y: 270, label: 'PostgreSQL',        sub: 'confirmed',        type: 'database', concept: 'crash-recovery' },
 ]
 
 const LINES = [
@@ -37,7 +37,7 @@ const LINES = [
   { x1: 540, y1: 50, x2: 570, y2: 50 },
   { x1: 680, y1: 50, x2: 720, y2: 50, dashed: true, label: 'retry x3 → NACK', lx: 700, ly: 42 },
   { x1: 775, y1: 70, x2: 775, y2: 150, dashed: true },
-  { x1: 625, y1: 70, x2: 625, y2: 150, label: '✓ sucesso', lx: 645, ly: 112 },
+  { x1: 625, y1: 70, x2: 625, y2: 150, label: 'sucesso', lx: 645, ly: 112 },
   { x1: 570, y1: 170, x2: 540, y2: 170 },
   { x1: 430, y1: 170, x2: 400, y2: 170 },
   { x1: 290, y1: 170, x2: 260, y2: 170 },

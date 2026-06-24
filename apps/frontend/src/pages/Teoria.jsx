@@ -6,7 +6,7 @@ const CONCEPTS = {
     tag: 'BEB', tagColor: 'bg-sky-100 text-sky-700',
     title: 'Best Effort Broadcast',
     description:
-      'O Producer publica a mensagem no exchange e retorna HTTP 200 imediatamente, sem aguardar que nenhum worker processe. Se todos os workers caírem antes de processar, a mensagem ainda está na fila — o Producer não sabe disso. Equivale a "enviar e torcer".',
+      'O Producer publica a mensagem no exchange e retorna HTTP 200 imediatamente, sem aguardar que nenhum worker processe. Se todos os workers caírem antes de processar, a mensagem ainda está na fila, o Producer não sabe disso. Equivale a "enviar e torcer".',
     formal:
       'BEB1 (Validade): Se p correto difunde m, então p eventualmente entrega m.\nBEB2 (Sem duplicação): Nenhuma m é entregue mais de uma vez.\nBEB3 (Sem criação): Se m é entregue, então m foi difundida.',
     code: 'POST /orders\n  → channel.basic_publish(body, exchange="ticket-sales")\n  → return HTTP 200  # sem await nos workers',
@@ -23,13 +23,13 @@ const CONCEPTS = {
       'PL1 (Entrega confiável): Se p e q corretos e p envia m a q, então q eventualmente entrega m.\nPL2 (Sem duplicação): m é entregue no máximo uma vez.\nPL3 (Sem criação): m não é criada.',
     code: 'Message(\n  body=payload,\n  delivery_mode=DeliveryMode.PERSISTENT,  # ← grava em disco\n)\nawait exchange.publish(msg, routing_key="payment")\n...\nawait msg.ack()  # ← só remove após processar',
     observe:
-      'Rode "make send-1000" e depois "make restart-rabbit". Após o broker reiniciar (~5s), todas as mensagens continuam na fila — nenhuma perdida.',
+      'Rode "make send-1000" e depois "make restart-rabbit". Após o broker reiniciar (~5s), todas as mensagens continuam na fila, nenhuma perdida.',
   },
   'crash-stop': {
     tag: 'CS', tagColor: 'bg-red-100 text-red-700',
     title: 'Crash-Stop Failure Model',
     description:
-      'No modelo crash-stop, um processo que falha para permanentemente (não reinicia). O RabbitMQ detecta o crash via timeout TCP: mensagens que estavam "unacked" (consumidas mas não confirmadas) voltam automaticamente para o estado ready e são re-entregues a outro worker — sem perda de mensagens.',
+      'No modelo crash-stop, um processo que falha para permanentemente (não reinicia). O RabbitMQ detecta o crash via timeout TCP: mensagens que estavam "unacked" (consumidas mas não confirmadas) voltam automaticamente para o estado ready e são re-entregues a outro worker, sem perda de mensagens.',
     formal:
       'Propriedades: (1) Um processo falhado não emite mais ações.\n(2) Processos corretos não falham.\n(3) Detector de falhas suspeita de processos silenciosos.',
     code: '# RabbitMQ: timeout TCP detecta o crash\n# Unacked messages → retornam ao estado "ready"\n# Outros workers consomem automaticamente\n\nawait channel.set_qos(prefetch_count=10)  # ← limita unacked',
@@ -45,7 +45,7 @@ const CONCEPTS = {
       'Propriedades: processos podem crashar e reiniciar. Estado marcado como durável sobrevive ao crash. Processos recomeçam a partir do último estado durável.',
     code: 'conn = await aio_pika.connect_robust(\n  url,\n  reconnect_interval=5,  # ← backoff automático\n)\n\n# Mensagens PERSISTENT sobrevivem ao reinício do broker',
     observe:
-      'Rode "make restart-rabbit" com 1000 pedidos na fila. Workers reconectam em ~5s e processamento continua do ponto onde parou — estado preservado em disco.',
+      'Rode "make restart-rabbit" com 1000 pedidos na fila. Workers reconectam em ~5s e processamento continua do ponto onde parou, estado preservado em disco.',
   },
   fifo: {
     tag: 'FIFO', tagColor: 'bg-emerald-100 text-emerald-700',
@@ -56,18 +56,18 @@ const CONCEPTS = {
       'FIFO Broadcast: Se p difunde m antes de m\', então todo processo correto que entrega m\' já entregou m.',
     code: '# Com 1 worker: FIFO garantido\n# payment-queue → [worker-1] → confirma na ordem de chegada\n\n# Com N workers: FIFO POR WORKER, não global\n# payment-queue → [worker-1, worker-2, worker-3]\n# → confirmações fora de ordem',
     observe:
-      'Rode "make scale-workers N=5" e "make send-100". Compare created_at vs updated_at no banco — a ordem de confirmação não respeita a de criação. Volte para N=1 e veja FIFO restaurado.',
+      'Rode "make scale-workers N=5" e "make send-100". Compare created_at vs updated_at no banco, a ordem de confirmação não respeita a de criação. Volte para N=1 e veja FIFO restaurado.',
   },
   'race-condition': {
     tag: 'MUTEX', tagColor: 'bg-orange-100 text-orange-700',
     title: 'Race Condition + Exclusão Mútua',
     description:
-      'Com múltiplos workers processando em paralelo, dois podem ler available_tickets=1 simultaneamente e ambos decrementarem — vendendo o mesmo ingresso duas vezes (overbooking). SELECT FOR UPDATE obtém um lock exclusivo na linha do banco: apenas um worker por vez pode ler e modificar o estoque.',
+      'Com múltiplos workers processando em paralelo, dois podem ler available_tickets=1 simultaneamente e ambos decrementarem, vendendo o mesmo ingresso duas vezes (overbooking). SELECT FOR UPDATE obtém um lock exclusivo na linha do banco: apenas um worker por vez pode ler e modificar o estoque.',
     formal:
       'Exclusão mútua: no máximo um processo está na seção crítica (leitura + decremento de estoque) em um dado momento.',
     code: '# Sem lock: race condition!\n# Worker A: SELECT tickets → 1\n# Worker B: SELECT tickets → 1  (lê antes de A decrementar!)\n# Worker A: UPDATE tickets = 0  ← vende\n# Worker B: UPDATE tickets = 0  ← overbooking!\n\n# Com SELECT FOR UPDATE:\nasync with session.begin():\n    event = await session.execute(\n        select(Event).where(Event.id == event_id).with_for_update()\n    )',
     observe:
-      'Rode "make scale-workers N=10" e "make send-100" para um evento com poucos ingressos. Veja no banco: nenhum overbooking — os últimos pedidos ficam com status out_of_stock.',
+      'Rode "make scale-workers N=10" e "make send-100" para um evento com poucos ingressos. Veja no banco: nenhum overbooking, os últimos pedidos ficam com status out_of_stock.',
   },
   idempotency: {
     tag: 'IDEM', tagColor: 'bg-teal-100 text-teal-700',
@@ -84,12 +84,12 @@ const CONCEPTS = {
     tag: 'DLQ', tagColor: 'bg-rose-100 text-rose-700',
     title: 'Dead Letter Queue + Bounded Retry',
     description:
-      'Após MAX_RETRIES (3) tentativas com falha, a mensagem não é descartada — é enviada para a Dead Letter Queue via Dead Letter Exchange. O worker republica com x-retry-count++ no header AMQP a cada falha. Isso evita loop infinito de retentativas e preserva mensagens problemáticas para inspeção ou reprocessamento manual.',
+      'Após MAX_RETRIES (3) tentativas com falha, a mensagem não é descartada, é enviada para a Dead Letter Queue via Dead Letter Exchange. O worker republica com x-retry-count++ no header AMQP a cada falha. Isso evita loop infinito de retentativas e preserva mensagens problemáticas para inspeção ou reprocessamento manual.',
     formal:
       'Bounded Retry: limitar retentativas via contador no header (x-retry-count). Após o limite, mensagem vai para fila de quarentena (DLQ).',
     code: 'retry_count = int(msg.headers.get("x-retry-count", 0))\n\nif retry_count < MAX_RETRIES:  # MAX_RETRIES = 3\n    retry_msg = Message(\n        body=msg.body,\n        headers={**headers, "x-retry-count": retry_count + 1},\n        delivery_mode=PERSISTENT,\n    )\n    await exchange.publish(retry_msg, routing_key="payment")\nelse:\n    await msg.nack(requeue=False)  # → DLX → DLQ',
     observe:
-      'Rode "make send-failures" (30% de falha). Aguarde ~30s (3 retries × delay). Rode "make inspect-dlq" — mensagens com x-retry-count=3 acumuladas na DLQ.',
+      'Rode "make send-failures" (30% de falha). Aguarde ~30s (3 retries × delay). Rode "make inspect-dlq", mensagens com x-retry-count=3 acumuladas na DLQ.',
   },
 }
 
@@ -109,7 +109,7 @@ export default function Teoria() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Teoria SD — TicketLab</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Teoria SD, TicketLab</h1>
         <p className="text-gray-500 mt-1 text-sm">
           Clique em qualquer nó do diagrama para ver o conceito de Sistemas Distribuídos que ele demonstra
         </p>
@@ -118,7 +118,7 @@ export default function Teoria() {
       {/* Diagram card */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Arquitetura do Sistema — clique nos componentes
+          Arquitetura do Sistema, clique nos componentes
         </h2>
         <p className="text-xs text-gray-400 mb-4">
           Cada componente implementa um ou mais conceitos de SD. Nós destacados mostram o conceito selecionado.

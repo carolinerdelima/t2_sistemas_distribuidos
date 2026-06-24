@@ -10,7 +10,7 @@ const EXPERIMENTS = [
     concept: 'BEB',
     conceptColor: 'text-sky-600 bg-sky-50',
     conceptId: 'beb',
-    description: 'Producer publica sem aguardar processamento — Best Effort Broadcast.',
+    description: 'Producer publica sem aguardar processamento -> Best Effort Broadcast.',
   },
   {
     label: 'Disparar 1000 pedidos (carga)',
@@ -31,7 +31,7 @@ const EXPERIMENTS = [
     description: 'Cada falha: retry com x-retry-count++. Após 3 tentativas → DLQ.',
   },
   {
-    label: 'Carga com falhas (30%) — 500',
+    label: 'Carga com falhas (30%) -> 500',
     count: 500,
     failureRate: 0.3,
     concept: 'BEB + DLQ',
@@ -69,7 +69,7 @@ function ExperimentButton({ exp, onComplete }) {
           {state === 'running' ? (
             <div className="w-4 h-4 border-2 border-brand-300 border-t-transparent rounded-full animate-spin" />
           ) : (
-            <span className="text-base">{exp.failureRate > 0 ? '⚠️' : '🚀'}</span>
+            <span className="text-base">{''}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">

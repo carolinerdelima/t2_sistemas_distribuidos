@@ -1,7 +1,7 @@
 import OrderStatusBadge from './OrderStatusBadge'
 
 function shortId(id) {
-  return id ? id.slice(0, 8) + '…' : '—'
+  return id ? id.slice(0, 8) + '…' : '-'
 }
 
 function formatDate(d) {
@@ -37,7 +37,7 @@ export default function OrdersTable({ orders }) {
               <td className="py-3 pr-4 text-gray-600">{o.event_id}</td>
               <td className="py-3 pr-4"><OrderStatusBadge status={o.status} /></td>
               <td className="py-3 pr-4 font-mono text-xs text-gray-400">
-                {o.ticket_code ? shortId(o.ticket_code) : '—'}
+                {o.ticket_code ? shortId(o.ticket_code) : '-'}
               </td>
               <td className="py-3 text-gray-400 text-xs">{formatDate(o.created_at)}</td>
             </tr>
